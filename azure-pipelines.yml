@@ -1,0 +1,47 @@
+# Azure DevOps pipeline: the same flow as .github/workflows/ci.yml, for discussion.
+#
+# The environment URL comes from a Variable Group (Pipelines > Library), never from this file.
+# Create a group called "qa-example-variables" containing BASE_URL.
+
+trigger:
+  branches:
+    include: [main]
+
+pr:
+  branches:
+    include: [main]
+
+schedules:
+  - cron: '0 6 * * *'
+    displayName: Nightly full regression
+    branches:
+      include: [main]
+    always: true
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: qa-example-variables      # provides BASE_URL
+
+stages:
+  - stage: Smoke
+    displayName: Smoke tests (every PR and merge)
+    jobs:
+      - job: smoke
+        steps:
+          - template: .azure/selenium-steps.yml
+            parameters:
+              groups: 'smoke'
+
+  - stage: Regression
+    displayName: Full regression (nightly or after smoke passes on main)
+    dependsOn: Smoke
+    # Only run on main or the schedule, not on every PR, to keep PR feedback fast.
+    condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.Reason'], 'Schedule')))
+    jobs:
+      - job: regression
+        steps:
+          - template: .azure/selenium-steps.yml
+            parameters:
+              groups: 'smoke | regression'

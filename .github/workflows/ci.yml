@@ -1,0 +1,59 @@
+# GitHub Actions pipeline: runs the Selenium tests automatically.
+#
+#  - Pull request  -> fast smoke tests only (quick feedback)
+#  - Nightly 06:00 UTC -> full suite (smoke + regression)
+#  - Manual run    -> choose the environment (BASE_URL) and the tag to run
+name: Selenium tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Site to test'
+        default: 'https://www.unitestudents.com'
+      groups:
+        description: 'Tag expression, e.g. smoke (blank = everything)'
+        default: ''
+
+jobs:
+  test:
+    runs-on: ubuntu-latest       # Chrome is pre-installed; Selenium Manager fetches the matching driver
+    timeout-minutes: 20          # never let a hung run block the queue
+    env:
+      # The ONLY environment-specific setting. Secrets would go in repo secrets, never in this file.
+      BASE_URL: ${{ inputs.base_url || 'https://www.unitestudents.com' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven            # caches downloaded dependencies between runs
+
+      # Choose what to run: PRs get smoke only, schedule/manual get everything.
+      - name: Run tests
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            ./mvnw -B test -Dgroups=smoke
+          elif [ -n "${{ inputs.groups }}" ]; then
+            ./mvnw -B test -Dgroups="${{ inputs.groups }}"
+          else
+            ./mvnw -B test
+          fi
+
+      # always() = upload the evidence even when tests fail: that is when you need it.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selenium-results
+          path: |
+            target/surefire-reports/
+            target/screenshots/
+          retention-days: 14
