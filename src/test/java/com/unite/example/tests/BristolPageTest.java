@@ -1,5 +1,6 @@
 package com.unite.example.tests;
 
+import com.unite.example.data.TestData;
 import com.unite.example.pages.CityPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -13,18 +14,18 @@ class BristolPageTest extends BaseTest {
     @Tag("smoke")
     @DisplayName("Bristol page loads with the Bristol heading and title")
     void loadsWithHeadingAndTitle() {
-        CityPage bristol = new CityPage(driver, "bristol");
+        CityPage bristol = new CityPage(driver, TestData.BRISTOL_SLUG);
         bristol.open();
 
-        assertTrue(bristol.title().contains("Bristol"), "Unexpected title: " + bristol.title());
-        assertTrue(bristol.headingText().toUpperCase().contains("BRISTOL"), "Unexpected heading: " + bristol.headingText());
+        assertTrue(bristol.title().contains(TestData.BRISTOL_TITLE_TEXT), "Unexpected title: " + bristol.title());
+        assertTrue(bristol.headingText().toUpperCase().contains(TestData.BRISTOL_HEADING_TEXT), "Unexpected heading: " + bristol.headingText());
     }
 
     @Test
     @Tag("smoke")
     @DisplayName("Bristol page lists residences with filters and sorting")
     void listsResidencesWithFiltersAndSorting() {
-        CityPage bristol = new CityPage(driver, "bristol");
+        CityPage bristol = new CityPage(driver, TestData.BRISTOL_SLUG);
         bristol.open();
 
         assertTrue(bristol.filterBarVisible(), "Filter bar not visible");
@@ -38,7 +39,7 @@ class BristolPageTest extends BaseTest {
     @Tag("regression")
     @DisplayName("User can open a Bristol residence from the list")
     void opensAResidenceFromTheList() {
-        CityPage bristol = new CityPage(driver, "bristol");
+        CityPage bristol = new CityPage(driver, TestData.BRISTOL_SLUG);
         bristol.open();
 
         bristol.openFirstProperty();

@@ -1,5 +1,6 @@
 package com.unite.example.tests;
 
+import com.unite.example.data.TestData;
 import com.unite.example.pages.CityPage;
 import com.unite.example.pages.HomePage;
 import org.junit.jupiter.api.DisplayName;
@@ -18,8 +19,8 @@ class HomePageTest extends BaseTest {
         HomePage home = new HomePage(driver);
         home.open();
 
-        assertTrue(home.title().toLowerCase().contains("student accommodation"), "Unexpected title: " + home.title());
-        assertTrue(home.headingText().contains("Find your perfect student home"), "Unexpected heading: " + home.headingText());
+        assertTrue(home.title().toLowerCase().contains(TestData.HOME_TITLE_TEXT), "Unexpected title: " + home.title());
+        assertTrue(home.headingText().contains(TestData.HOME_HEADING_TEXT), "Unexpected heading: " + home.headingText());
     }
 
     @Test
@@ -43,6 +44,6 @@ class HomePageTest extends BaseTest {
 
         CityPage bristol = home.goToBristol();
 
-        assertTrue(bristol.headingText().toUpperCase().contains("BRISTOL"), "Unexpected heading: " + bristol.headingText());
+        assertTrue(bristol.headingText().toUpperCase().contains(TestData.BRISTOL_HEADING_TEXT), "Unexpected heading: " + bristol.headingText());
     }
 }

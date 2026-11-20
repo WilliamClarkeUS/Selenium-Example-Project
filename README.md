@@ -36,6 +36,7 @@ src/test/java/com/unite/example/
     HomePage.java
     CityPage.java                        #   takes a city slug, so it works for any city
     components/CookieBanner.java         #   reusable UI piece used by every page
+  data/TestData.java                     # static test data (city slug, expected title and heading)
   support/ScreenshotOnFailure.java       # saves a screenshot when a test fails
   tests/                                 # readable tests: business steps, no locators in sight
     BaseTest.java                        #   fresh browser per test
